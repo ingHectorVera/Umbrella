@@ -103,6 +103,9 @@ public class UmbrellaConfigDH extends SQLiteOpenHelper{
         if(cursor1 != null){
             cursor1.moveToFirst();
         }
+
+
+
         configData.setZipCode(cursor.getString(0));
         configData.setUnit(cursor1.getString(0));
 
