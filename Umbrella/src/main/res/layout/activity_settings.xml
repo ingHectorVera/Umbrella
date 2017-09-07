@@ -25,12 +25,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Zip code" />
+            android:text="@string/zip_code" />
 
         <EditText
             android:id="@+id/zip_code"
             android:layout_width="match_parent"
-
             android:layout_height="wrap_content"
             android:inputType="number" />
 
@@ -42,7 +41,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Units" />
+            android:text="@string/units" />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/units"/>
 
     </LinearLayout>
 

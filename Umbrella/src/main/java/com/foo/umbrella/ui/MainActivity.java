@@ -13,7 +13,7 @@ import com.foo.umbrella.R;
 public class MainActivity extends AppCompatActivity {
 
     private boolean flag = true;
-    private int main_activity_code = 1;
+    private static final int MAIN_ACTIVITY_CODE = 1;
     private Toolbar toolbar;
 
   @Override
@@ -34,9 +34,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.main_search){
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivityForResult(intent, main_activity_code);
-            
+            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivityForResult(intent, MAIN_ACTIVITY_CODE);
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -44,19 +44,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == main_activity_code){
+        if(requestCode == MAIN_ACTIVITY_CODE && resultCode == RESULT_OK && data != null){
             //flag = data.getBooleanExtra("flag",true);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        /*if(flag){
-            Intent intent = new Intent(this, SettingsActivity.class);
-            intent.putExtra("flag", flag);
-            startActivityForResult(intent, main_activity_code);
-        }else {
-        }*/
     }
 }
