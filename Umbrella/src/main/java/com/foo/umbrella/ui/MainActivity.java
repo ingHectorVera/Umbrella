@@ -10,19 +10,27 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.foo.umbrella.R;
+import com.foo.umbrella.data.ApiServicesProvider;
+import com.foo.umbrella.data.api.WeatherService;
+import com.foo.umbrella.data.model.WeatherData;
+
+import java.io.IOException;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int MAIN_ACTIVITY_CODE = 1;
     private Toolbar toolbar;
-    private String zipCode, unit;
+    private String zip, unit;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
       toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-      zipCode = "";
+      zip = "";
       unit = "";
       setSupportActionBar(toolbar);
   }
@@ -48,10 +56,24 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == MAIN_ACTIVITY_CODE && resultCode == RESULT_OK && data != null){
             //flag = data.getBooleanExtra("flag",true);
-            zipCode = data.getStringExtra("zipCode");
+            zip = data.getStringExtra("zipCode");
             unit = data.getStringExtra("unit");
 
-            Toast.makeText(this, zipCode + " " + unit, Toast.LENGTH_LONG).show();
+            ApiServicesProvider api = new ApiServicesProvider(getApplication());
+
+            Call<WeatherData> call = api.getWeatherService().forecastForZipCallable(zip);
+
+            try {
+                Response<WeatherData> response = call.execute();
+                if(response.isSuccessful()){
+                    WeatherData weatherData = response.body();
+                    toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFullName());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Toast.makeText(this, zip + " " + unit, Toast.LENGTH_LONG).show();
         }
     }
 }
