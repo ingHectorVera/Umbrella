@@ -12,7 +12,8 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.activity_main);
   }
 
     @Override
@@ -31,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("flag", flag);
             startActivityForResult(intent, main_activity_code);
         }else {
-            setContentView(R.layout.activity_main);
         }
     }
 }

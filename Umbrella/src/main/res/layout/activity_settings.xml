@@ -8,6 +8,16 @@
     android:orientation="vertical"
     tools:context="com.foo.umbrella.ui.Settings">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/settings_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/text_color_secondary"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:clickable="false"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
