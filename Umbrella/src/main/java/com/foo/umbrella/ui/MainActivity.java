@@ -5,40 +5,38 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.ApiServicesProvider;
-import com.foo.umbrella.data.api.WeatherService;
 import com.foo.umbrella.data.model.WeatherData;
 
-import java.io.IOException;
-
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int MAIN_ACTIVITY_CODE = 1;
     private Toolbar toolbar;
-    private String zip, unit;
+    private String zipCode, unit;
+    private ApiServicesProvider api ;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
       toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-      zip = "";
+      zipCode = "";
       unit = "";
+      api = new ApiServicesProvider(getApplication());
       setSupportActionBar(toolbar);
   }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        //MenuInflater menuInflater = getMenuInflater();
         return true;
     }
 
@@ -56,24 +54,29 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == MAIN_ACTIVITY_CODE && resultCode == RESULT_OK && data != null){
             //flag = data.getBooleanExtra("flag",true);
-            zip = data.getStringExtra("zipCode");
+            zipCode = data.getStringExtra("zipCode");
             unit = data.getStringExtra("unit");
 
-            ApiServicesProvider api = new ApiServicesProvider(getApplication());
+            forecastForZipCallable();
 
-            Call<WeatherData> call = api.getWeatherService().forecastForZipCallable(zip);
+            //Toast.makeText(this, zipCode + " " + unit, Toast.LENGTH_LONG).show();
+        }
+    }
 
-            try {
-                Response<WeatherData> response = call.execute();
-                if(response.isSuccessful()){
-                    WeatherData weatherData = response.body();
-                    toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFullName());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+    private void forecastForZipCallable(){
+
+        Callback<WeatherData> callback = new Callback<WeatherData>() {
+            @Override
+            public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
+                WeatherData weatherData = response.body();
+                toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFullName());
             }
 
-            Toast.makeText(this, zip + " " + unit, Toast.LENGTH_LONG).show();
-        }
+            @Override
+            public void onFailure(Call<WeatherData> call, Throwable t) {
+            }
+        };
+        Call<WeatherData> call = api.getWeatherService().forecastForZipCallable(zipCode);
+        call.enqueue(callback);
     }
 }
