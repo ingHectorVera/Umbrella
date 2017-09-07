@@ -8,7 +8,7 @@ import android.view.MenuItem;
 
 import com.foo.umbrella.R;
 
-public class Settings extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     @Override
