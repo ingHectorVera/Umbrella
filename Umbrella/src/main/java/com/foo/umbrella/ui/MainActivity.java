@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.ApiServicesProvider;
 import com.foo.umbrella.data.model.WeatherData;
+import com.foo.umbrella.service.CommunicationService;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -19,9 +21,9 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private static final int MAIN_ACTIVITY_CODE = 1;
+    private static final String DEBUG = "Debug_Main";
     private Toolbar toolbar;
     private String zipCode, unit;
-    private ApiServicesProvider api ;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
       toolbar = (Toolbar) findViewById(R.id.main_toolbar);
       zipCode = "";
       unit = "";
-      api = new ApiServicesProvider(getApplication());
       setSupportActionBar(toolbar);
   }
 
@@ -53,30 +54,37 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == MAIN_ACTIVITY_CODE && resultCode == RESULT_OK && data != null){
-            //flag = data.getBooleanExtra("flag",true);
             zipCode = data.getStringExtra("zipCode");
             unit = data.getStringExtra("unit");
 
             forecastForZipCallable();
-
-            //Toast.makeText(this, zipCode + " " + unit, Toast.LENGTH_LONG).show();
         }
     }
 
     private void forecastForZipCallable(){
 
-        Callback<WeatherData> callback = new Callback<WeatherData>() {
+        Intent intent = new Intent(MainActivity.this, CommunicationService.class);
+        intent.putExtra("zipCode",zipCode);
+        startService(intent);
+
+
+        /*ApiServicesProvider api = new ApiServicesProvider(getApplication());
+
+        Call<WeatherData> call = api.getWeatherService().forecastForZipCallable(zipCode);
+        call.enqueue(new Callback<WeatherData>() {
             @Override
             public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
+                Log.d(DEBUG, "onResponse");
                 WeatherData weatherData = response.body();
                 toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFullName());
             }
 
             @Override
             public void onFailure(Call<WeatherData> call, Throwable t) {
+                Log.d(DEBUG, "onFailure");
+                Log.d(DEBUG, t.getMessage());
+                t.printStackTrace();
             }
-        };
-        Call<WeatherData> call = api.getWeatherService().forecastForZipCallable(zipCode);
-        call.enqueue(callback);
+        });*/
     }
 }
