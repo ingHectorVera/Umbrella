@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.foo.umbrella.R;
 
@@ -42,7 +45,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == SETTINGS_ACTIVITY_CODE && requestCode == RESULT_OK && data != null){
+        if(requestCode == SETTINGS_ACTIVITY_CODE && resultCode == RESULT_OK && data != null){
             String units = data.getStringExtra("units");
             this.units.setText(units);
         }
@@ -51,9 +54,15 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == android.R.id.home){
-            Intent intent = new Intent(this, MainActivity.class);
-            setResult(RESULT_OK, intent);
-            finish();
+            if(checkEditText()) {
+                Intent intent = new Intent();
+                intent.putExtra("zipCode",zipCode.getText().toString());
+                intent.putExtra("unit", units.getText().toString());
+                setResult(RESULT_OK, intent);
+                finish();
+            }else{
+                Toast.makeText(this, "Missing information", Toast.LENGTH_SHORT).show();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -61,8 +70,24 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(this, MainActivity.class);
-        setResult(RESULT_OK, intent);
-        finish();
+        if(checkEditText()) {
+            Intent intent = new Intent();
+            intent.putExtra("zipCode",zipCode.getText().toString());
+            intent.putExtra("unit", units.getText().toString());
+            setResult(RESULT_OK, intent);
+            finish();
+        }else{
+            Toast.makeText(this, "Missing information", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean checkEditText(){
+        String sUnit = units.getText().toString();
+        String sZipCode = zipCode.getText().toString();
+        boolean flag = false;
+        if(!sUnit.equals("") && !sZipCode.equals("")){
+            flag = true;
+        }
+        return flag;
     }
 }

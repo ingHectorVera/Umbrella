@@ -23,7 +23,7 @@ public class UnitsActivity extends AppCompatActivity {
             public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
                 RadioButton radioButton = (RadioButton) findViewById(checkedId);
                 String units = radioButton.getText().toString();
-                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                Intent intent = new Intent();
                 intent.putExtra("units", units);
                 setResult(RESULT_OK, intent);
                 finish();

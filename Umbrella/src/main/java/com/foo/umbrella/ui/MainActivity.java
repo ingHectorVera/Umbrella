@@ -7,20 +7,23 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.foo.umbrella.R;
 
 public class MainActivity extends AppCompatActivity {
 
-    private boolean flag = true;
     private static final int MAIN_ACTIVITY_CODE = 1;
     private Toolbar toolbar;
+    private String zipCode, unit;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
       toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+      zipCode = "";
+      unit = "";
       setSupportActionBar(toolbar);
   }
 
@@ -36,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
         if(item.getItemId() == R.id.main_search){
             Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivityForResult(intent, MAIN_ACTIVITY_CODE);
-
         }
         return super.onOptionsItemSelected(item);
     }
@@ -46,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == MAIN_ACTIVITY_CODE && resultCode == RESULT_OK && data != null){
             //flag = data.getBooleanExtra("flag",true);
+            zipCode = data.getStringExtra("zipCode");
+            unit = data.getStringExtra("unit");
+
+            Toast.makeText(this, zipCode + " " + unit, Toast.LENGTH_LONG).show();
         }
     }
 }
