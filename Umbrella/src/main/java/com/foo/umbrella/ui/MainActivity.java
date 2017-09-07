@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("zipCode",zipCode);
         startService(intent);
 
-
         /*ApiServicesProvider api = new ApiServicesProvider(getApplication());
 
         Call<WeatherData> call = api.getWeatherService().forecastForZipCallable(zipCode);

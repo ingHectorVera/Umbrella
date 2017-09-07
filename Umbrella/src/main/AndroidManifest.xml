@@ -21,6 +21,7 @@
         </activity>
         <activity android:name=".ui.SettingsActivity" />
         <activity android:name=".ui.UnitsActivity"></activity>
+        <service android:name=".service.CommunicationService"></service>
     </application>
 
 </manifest>
