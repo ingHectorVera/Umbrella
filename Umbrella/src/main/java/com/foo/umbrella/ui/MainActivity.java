@@ -63,9 +63,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void forecastForZipCallable(){
 
-        Intent intent = new Intent(MainActivity.this, CommunicationService.class);
-        intent.putExtra("zipCode",zipCode);
-        startService(intent);
+        //Intent intent = new Intent(MainActivity.this, CommunicationService.class);
+        //intent.putExtra("zipCode",zipCode);
+        //startService(intent);
 
         /*ApiServicesProvider api = new ApiServicesProvider(getApplication());
 
