@@ -13,7 +13,8 @@ import org.threeten.bp.LocalDateTime;
  * Moshi Adapter to convert goofy weather underground data to a easier to use ForecastCondition.
  */
 public class ForecastConditionAdapter {
-  @FromJson public ForecastCondition forecastConditionFromJson(
+  @FromJson
+  public ForecastCondition forecastConditionFromJson(
       ForecastConditionJson forecastConditionJson) {
 
     FctTime fcTTime = forecastConditionJson.getFcTTime();

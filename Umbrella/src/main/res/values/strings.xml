@@ -1,3 +1,7 @@
 <resources>
-  <string name="app_name">Umbrella</string>
+    <string name="app_name">Umbrella</string>
+    <string name="celsius">Celsius</string>
+    <string name="units">Units</string>
+    <string name="zip_code">Zip code</string>
+    <string name="fahrenheit">Fahrenheit</string>
 </resources>
