@@ -1,27 +1,22 @@
 package com.foo.umbrella.ui;
 
 import android.content.Intent;
-import android.database.Observable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.foo.umbrella.R;
-import com.foo.umbrella.data.ApiServicesProvider;
 import com.foo.umbrella.data.api.WeatherService;
 import com.foo.umbrella.data.model.WeatherData;
 import com.foo.umbrella.database.ConfigData;
 import com.foo.umbrella.database.UmbrellaConfigDH;
-import com.foo.umbrella.service.CommunicationService;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.adapter.rxjava.Result;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -97,21 +92,15 @@ public class MainActivity extends AppCompatActivity {
         //Intent intent = new Intent(MainActivity.this, CommunicationService.class);
         //intent.putExtra("zipCode",zipCode);
         //startService(intent);
-
-        ApiServicesProvider api = new ApiServicesProvider(getApplication());
-
-        Call<WeatherData> call = api.getWeatherService().forecastForZipCallable(zipCode);
-        call.enqueue(new Callback<WeatherData>() {
+        WeatherService.Factory.getInstance().forecastForZipCallable(zipCode).enqueue(new Callback<WeatherData>() {
             @Override
             public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
-                Log.d(DEBUG, "onResponse");
-                WeatherData weatherData = response.body();
-                toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFullName());
+               Log.d(DEBUG, "onResponse");
             }
 
             @Override
             public void onFailure(Call<WeatherData> call, Throwable t) {
-                Log.d(DEBUG, t.getMessage());
+                Log.d(DEBUG, "onFailure");
                 t.printStackTrace();
             }
         });
