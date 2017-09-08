@@ -12,6 +12,8 @@ import android.widget.Toast;
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.ApiServicesProvider;
 import com.foo.umbrella.data.model.WeatherData;
+import com.foo.umbrella.database.ConfigData;
+import com.foo.umbrella.database.UmbrellaConfigDH;
 import com.foo.umbrella.service.CommunicationService;
 
 import retrofit2.Call;
@@ -28,11 +30,24 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+
       setContentView(R.layout.activity_main);
       toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-      zipCode = "";
-      unit = "";
-      setSupportActionBar(toolbar);
+
+      UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
+
+      ConfigData configData = umbrellaConfigDH.selectConfigData();
+      if(configData.getZipCode() != null && configData.getUnit() != null) {
+          zipCode = configData.getZipCode();
+          unit = configData.getUnit();
+
+          toolbar.setTitle(zipCode +" "+unit);
+
+          setSupportActionBar(toolbar);
+      } else {
+          Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+          startActivityForResult(intent, MAIN_ACTIVITY_CODE);
+      }
   }
 
     @Override
@@ -57,6 +72,19 @@ public class MainActivity extends AppCompatActivity {
             zipCode = data.getStringExtra("zipCode");
             unit = data.getStringExtra("unit");
 
+            toolbar.setTitle(zipCode +" "+unit);
+            setSupportActionBar(toolbar);
+
+            UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
+
+            ConfigData configData = umbrellaConfigDH.selectConfigData();
+            if(configData.getZipCode() != null && configData.getUnit() != null){
+                umbrellaConfigDH.updateZipCode(zipCode);
+                umbrellaConfigDH.updateUnit(unit);
+            }else {
+                umbrellaConfigDH.addZipCode(zipCode);
+                umbrellaConfigDH.addUnit(unit);
+            }
             forecastForZipCallable();
         }
     }

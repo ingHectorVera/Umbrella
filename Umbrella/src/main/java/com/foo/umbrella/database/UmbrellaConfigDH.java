@@ -16,8 +16,8 @@ public class UmbrellaConfigDH extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_CONFIG_TABLE = "CREATE TABLE IF NOT EXISTS " + Library.TABLE_CONFIG + " ( " +
-                Library.CONFIG_ATT + "TEXT, " +
-                Library.CONFIG_VALUE+ "TEXT)";
+                Library.CONFIG_ATT + " TEXT, " +
+                Library.CONFIG_VALUE+ " TEXT )";
         db.execSQL(CREATE_CONFIG_TABLE);
     }
 
@@ -27,50 +27,50 @@ public class UmbrellaConfigDH extends SQLiteOpenHelper{
         onCreate(db);
     }
 
-    public void addZipCode(ConfigData configData){
-        if(configData.getZipCode() != null){
+    public void addZipCode(String zipCode){
+        if(zipCode != null){
             SQLiteDatabase db = this.getWritableDatabase();
 
             ContentValues values = new ContentValues();
             values.put(Library.CONFIG_ATT, Library.ATT_ZIP_CODE);
-            values.put(Library.CONFIG_VALUE, configData.getZipCode());
+            values.put(Library.CONFIG_VALUE, zipCode);
 
             db.insert(Library.TABLE_CONFIG, null, values);
             db.close();
         }
     }
 
-    public void addUnit(ConfigData configData){
-        if(configData.getUnit() != null){
+    public void addUnit(String unit){
+        if(unit != null){
             SQLiteDatabase db = this.getWritableDatabase();
 
             ContentValues values = new ContentValues();
             values.put(Library.CONFIG_ATT, Library.ATT_UNIT);
-            values.put(Library.CONFIG_VALUE, configData.getUnit());
+            values.put(Library.CONFIG_VALUE, unit);
 
             db.insert(Library.TABLE_CONFIG, null, values);
             db.close();
         }
     }
 
-    public void updateZipCode(ConfigData configData){
-        if(configData.getZipCode() != null){
+    public void updateZipCode(String zipCode){
+        if(zipCode != null){
             SQLiteDatabase db = this.getWritableDatabase();
 
             ContentValues values = new ContentValues();
-            values.put(Library.CONFIG_VALUE, configData.getZipCode());
+            values.put(Library.CONFIG_VALUE, zipCode);
 
             db.update(Library.TABLE_CONFIG, values, Library.CONFIG_ATT +" = ?",
                     new String[]{Library.ATT_ZIP_CODE});
         }
     }
 
-    public void updateUnit(ConfigData configData){
-        if(configData.getZipCode() != null){
+    public void updateUnit(String unit){
+        if(unit != null){
             SQLiteDatabase db = this.getWritableDatabase();
 
             ContentValues values = new ContentValues();
-            values.put(Library.CONFIG_VALUE, configData.getUnit());
+            values.put(Library.CONFIG_VALUE, unit);
 
             db.update(Library.TABLE_CONFIG, values, Library.CONFIG_ATT +" = ?",
                     new String[]{Library.ATT_UNIT});
@@ -79,20 +79,18 @@ public class UmbrellaConfigDH extends SQLiteOpenHelper{
 
     public ConfigData selectConfigData(){
         ConfigData configData = new ConfigData();
-        String selectUnitQuery = "SELECT " + Library.CONFIG_VALUE + " FROM " + Library.TABLE_CONFIG
-                + " WHERE " + Library.CONFIG_ATT + "= " + Library.ATT_UNIT;
 
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(Library.TABLE_CONFIG,
                 new String[]{Library.CONFIG_VALUE},
-                Library.CONFIG_ATT + "= ?",
+                Library.CONFIG_ATT + " = ?",
                 new String[]{Library.ATT_ZIP_CODE},
                 null,null,null,null);
 
         Cursor cursor1 = db.query(Library.TABLE_CONFIG,
                 new String[]{Library.CONFIG_VALUE},
-                Library.CONFIG_ATT + "= ?",
+                Library.CONFIG_ATT + " = ?",
                 new String[]{Library.ATT_UNIT},
                 null,null,null,null);
 
@@ -103,11 +101,17 @@ public class UmbrellaConfigDH extends SQLiteOpenHelper{
         if(cursor1 != null){
             cursor1.moveToFirst();
         }
+        if(cursor.getCount() != 0){
+            configData.setZipCode(cursor.getString(0));
+        } else {
+            configData.setZipCode(null);
+        }
 
-
-
-        configData.setZipCode(cursor.getString(0));
-        configData.setUnit(cursor1.getString(0));
+        if(cursor1.getCount() != 0) {
+            configData.setUnit(cursor1.getString(0));
+        } else {
+            configData.setUnit(null);
+        }
 
         return configData;
     }
