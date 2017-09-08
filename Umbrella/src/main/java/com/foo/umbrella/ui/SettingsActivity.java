@@ -9,21 +9,25 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.foo.umbrella.R;
 
+import org.w3c.dom.Text;
+
 public class SettingsActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
-    private EditText zipCode, units;
+    private EditText zipCode;
+    private TextView units;
     private static final int SETTINGS_ACTIVITY_CODE = 2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         zipCode = (EditText) findViewById(R.id.zip_code);
-        units = (EditText) findViewById(R.id.units);
+        units = (TextView) findViewById(R.id.units);
         units.setClickable(true);
         units.setOnClickListener(new View.OnClickListener() {
             @Override

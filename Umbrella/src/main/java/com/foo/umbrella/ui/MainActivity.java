@@ -11,14 +11,19 @@ import android.widget.TextView;
 
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.api.WeatherService;
+import com.foo.umbrella.data.model.HourlyForecast;
 import com.foo.umbrella.data.model.WeatherData;
 import com.foo.umbrella.database.ConfigData;
 import com.foo.umbrella.database.UmbrellaConfigDH;
 import com.foo.umbrella.database.library.Library;
 
+import java.util.ArrayList;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.adapter.rxjava.Result;
+import rx.Observable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -103,6 +108,10 @@ public class MainActivity extends AppCompatActivity {
                     tempText.setText(weatherData.getCurrentObservation().getTempF()+"*");
                 }
                 weatherText.setText(weatherData.getCurrentObservation().getWeather());
+
+                /*ArrayList<HourlyForecast> hourlyForecastList = (ArrayList<HourlyForecast>) weatherData.getHourlyForecast();
+                Observable.from(hourlyForecastList)
+                        .groupBy(hourlyForecastList.g)*/
                Log.d(DEBUG, "onResponse");
             }
 
@@ -113,7 +122,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        //WeatherService.Factory.getInstance().forecastForZipObservable(zipCode);
     }
 }
