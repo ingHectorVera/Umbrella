@@ -39,8 +39,7 @@ public class MainActivity extends AppCompatActivity {
           zipCode = configData.getZipCode();
           unit = configData.getUnit();
 
-          toolbar.setTitle(zipCode +" "+unit);
-
+          forecastForZipCallable();
           setSupportActionBar(toolbar);
       } else {
           Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
@@ -70,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
             zipCode = data.getStringExtra("zipCode");
             unit = data.getStringExtra("unit");
 
-            toolbar.setTitle(zipCode +" "+unit);
             setSupportActionBar(toolbar);
 
             UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
@@ -89,12 +87,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void forecastForZipCallable(){
 
-        //Intent intent = new Intent(MainActivity.this, CommunicationService.class);
-        //intent.putExtra("zipCode",zipCode);
-        //startService(intent);
         WeatherService.Factory.getInstance().forecastForZipCallable(zipCode).enqueue(new Callback<WeatherData>() {
             @Override
             public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
+                WeatherData weatherData = response.body();
+                toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFull());
                Log.d(DEBUG, "onResponse");
             }
 

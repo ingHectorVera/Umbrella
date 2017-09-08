@@ -45,16 +45,6 @@ public class CurrentObservation {
     private String windString;
     @Json(name = "wind_dir")
     private String windDir;
-    @Json(name = "wind_degrees")
-    private int windDegrees;
-    @Json(name = "wind_mph")
-    private double windMph;
-    @Json(name = "wind_gust_mph")
-    private int windGustMph;
-    @Json(name = "wind_kph")
-    private int windKph;
-    @Json(name = "wind_gust_kph")
-    private int windGustKph;
     @Json(name = "pressure_mb")
     private String pressureMb;
     @Json(name = "pressure_in")
@@ -63,10 +53,6 @@ public class CurrentObservation {
     private String pressureTrend;
     @Json(name = "dewpoint_string")
     private String dewpointString;
-    @Json(name = "dewpoint_f")
-    private int dewpointF;
-    @Json(name = "dewpoint_c")
-    private int dewpointC;
     @Json(name = "heat_index_string")
     private String heatIndexString;
     @Json(name = "heat_index_f")
@@ -206,17 +192,10 @@ public class CurrentObservation {
         this.relativeHumidity = relativeHumidity;
         this.windString = windString;
         this.windDir = windDir;
-        this.windDegrees = windDegrees;
-        this.windMph = windMph;
-        this.windGustMph = windGustMph;
-        this.windKph = windKph;
-        this.windGustKph = windGustKph;
         this.pressureMb = pressureMb;
         this.pressureIn = pressureIn;
         this.pressureTrend = pressureTrend;
         this.dewpointString = dewpointString;
-        this.dewpointF = dewpointF;
-        this.dewpointC = dewpointC;
         this.heatIndexString = heatIndexString;
         this.heatIndexF = heatIndexF;
         this.heatIndexC = heatIndexC;
@@ -504,71 +483,6 @@ public class CurrentObservation {
         return this;
     }
 
-    public int getWindDegrees() {
-        return windDegrees;
-    }
-
-    public void setWindDegrees(int windDegrees) {
-        this.windDegrees = windDegrees;
-    }
-
-    public CurrentObservation withWindDegrees(int windDegrees) {
-        this.windDegrees = windDegrees;
-        return this;
-    }
-
-    public double getWindMph() {
-        return windMph;
-    }
-
-    public void setWindMph(double windMph) {
-        this.windMph = windMph;
-    }
-
-    public CurrentObservation withWindMph(double windMph) {
-        this.windMph = windMph;
-        return this;
-    }
-
-    public int getWindGustMph() {
-        return windGustMph;
-    }
-
-    public void setWindGustMph(int windGustMph) {
-        this.windGustMph = windGustMph;
-    }
-
-    public CurrentObservation withWindGustMph(int windGustMph) {
-        this.windGustMph = windGustMph;
-        return this;
-    }
-
-    public int getWindKph() {
-        return windKph;
-    }
-
-    public void setWindKph(int windKph) {
-        this.windKph = windKph;
-    }
-
-    public CurrentObservation withWindKph(int windKph) {
-        this.windKph = windKph;
-        return this;
-    }
-
-    public int getWindGustKph() {
-        return windGustKph;
-    }
-
-    public void setWindGustKph(int windGustKph) {
-        this.windGustKph = windGustKph;
-    }
-
-    public CurrentObservation withWindGustKph(int windGustKph) {
-        this.windGustKph = windGustKph;
-        return this;
-    }
-
     public String getPressureMb() {
         return pressureMb;
     }
@@ -618,32 +532,6 @@ public class CurrentObservation {
 
     public CurrentObservation withDewpointString(String dewpointString) {
         this.dewpointString = dewpointString;
-        return this;
-    }
-
-    public int getDewpointF() {
-        return dewpointF;
-    }
-
-    public void setDewpointF(int dewpointF) {
-        this.dewpointF = dewpointF;
-    }
-
-    public CurrentObservation withDewpointF(int dewpointF) {
-        this.dewpointF = dewpointF;
-        return this;
-    }
-
-    public int getDewpointC() {
-        return dewpointC;
-    }
-
-    public void setDewpointC(int dewpointC) {
-        this.dewpointC = dewpointC;
-    }
-
-    public CurrentObservation withDewpointC(int dewpointC) {
-        this.dewpointC = dewpointC;
         return this;
     }
 
