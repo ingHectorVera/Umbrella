@@ -1,11 +1,14 @@
 package com.foo.umbrella.data;
 
 import android.app.Application;
-import com.jakewharton.picasso.OkHttp3Downloader;
+
 import com.foo.umbrella.data.api.WeatherService;
+import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.moshi.Moshi;
 import com.squareup.picasso.Picasso;
+
 import java.io.File;
+
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;

@@ -1,6 +1,7 @@
 package com.foo.umbrella.ui;
 
 import android.content.Intent;
+import android.database.Observable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.ApiServicesProvider;
+import com.foo.umbrella.data.api.WeatherService;
 import com.foo.umbrella.data.model.WeatherData;
 import com.foo.umbrella.database.ConfigData;
 import com.foo.umbrella.database.UmbrellaConfigDH;
@@ -19,6 +21,7 @@ import com.foo.umbrella.service.CommunicationService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.adapter.rxjava.Result;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -95,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         //intent.putExtra("zipCode",zipCode);
         //startService(intent);
 
-        /*ApiServicesProvider api = new ApiServicesProvider(getApplication());
+        ApiServicesProvider api = new ApiServicesProvider(getApplication());
 
         Call<WeatherData> call = api.getWeatherService().forecastForZipCallable(zipCode);
         call.enqueue(new Callback<WeatherData>() {
@@ -108,10 +111,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<WeatherData> call, Throwable t) {
-                Log.d(DEBUG, "onFailure");
                 Log.d(DEBUG, t.getMessage());
                 t.printStackTrace();
             }
-        });*/
+        });
     }
 }
