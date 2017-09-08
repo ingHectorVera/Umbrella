@@ -24,6 +24,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         zipCode = (EditText) findViewById(R.id.zip_code);
         units = (EditText) findViewById(R.id.units);
+        units.setClickable(true);
         units.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

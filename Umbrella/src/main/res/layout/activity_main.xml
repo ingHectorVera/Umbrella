@@ -19,4 +19,22 @@
         android:clickable="true"
         android:theme="?attr/actionBarTheme" />
 
+    <TextView
+        android:id="@+id/tempText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:gravity="center"
+        android:textColor="@color/content_background"
+        android:textSize="42sp" />
+
+    <TextView
+        android:id="@+id/weatherText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:gravity="center"
+        android:textColor="@color/content_background"
+        android:textSize="18sp" />
+
 </LinearLayout>

@@ -7,12 +7,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.api.WeatherService;
 import com.foo.umbrella.data.model.WeatherData;
 import com.foo.umbrella.database.ConfigData;
 import com.foo.umbrella.database.UmbrellaConfigDH;
+import com.foo.umbrella.database.library.Library;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String DEBUG = "Debug_Main";
     private Toolbar toolbar;
     private String zipCode, unit;
+    private TextView tempText, weatherText;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
       setContentView(R.layout.activity_main);
       toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+      tempText = (TextView) findViewById(R.id.tempText);
+      weatherText = (TextView) findViewById(R.id.weatherText);
 
       UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
 
@@ -92,6 +97,12 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
                 WeatherData weatherData = response.body();
                 toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFull());
+                if(unit.equals(Library.CELSIUS)){
+                    tempText.setText(weatherData.getCurrentObservation().getTempC()+"*");
+                }else{
+                    tempText.setText(weatherData.getCurrentObservation().getTempF()+"*");
+                }
+                weatherText.setText(weatherData.getCurrentObservation().getWeather());
                Log.d(DEBUG, "onResponse");
             }
 
@@ -101,5 +112,8 @@ public class MainActivity extends AppCompatActivity {
                 t.printStackTrace();
             }
         });
+
+
+        //WeatherService.Factory.getInstance().forecastForZipObservable(zipCode);
     }
 }
