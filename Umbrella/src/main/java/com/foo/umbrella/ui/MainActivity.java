@@ -11,11 +11,13 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.foo.umbrella.GridAdapter;
 import com.foo.umbrella.ListAdapter;
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.api.WeatherService;
+import com.foo.umbrella.data.model.CurrentObservation;
 import com.foo.umbrella.data.model.HourlyForecast;
 import com.foo.umbrella.data.model.WeatherData;
 import com.foo.umbrella.database.ConfigData;
@@ -109,22 +111,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
                 WeatherData weatherData = response.body();
-                toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFull());
-                if(unit.equals(Library.CELSIUS)){
-                    tempText.setText(weatherData.getCurrentObservation().getTempC()+" ºC");
+                CurrentObservation currentObservation = weatherData.getCurrentObservation();
+                if(currentObservation != null) {
+                    toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFull());
+                    if (unit.equals(Library.CELSIUS)) {
+                        tempText.setText(weatherData.getCurrentObservation().getTempC() + " ºC");
+                    } else {
+                        tempText.setText(weatherData.getCurrentObservation().getTempF() + " ºF");
+                    }
+                    weatherText.setText(weatherData.getCurrentObservation().getWeather());
+
+                    setBackgroundColor(weatherData.getCurrentObservation().getTempF());
+
+                    ArrayList<ArrayList<HourlyForecast>> finalList = parseHourlyForecastList(
+                            weatherData.getHourlyForecast());
+
+                    ListAdapter listAdapter = new ListAdapter(getApplicationContext(), finalList, unit);
+                    containerList.setAdapter(listAdapter);
                 }else{
-                    tempText.setText(weatherData.getCurrentObservation().getTempF()+" ºF");
+                    Toast.makeText(getApplicationContext(), Library.ZIP_CODE_ERROR, Toast.LENGTH_LONG).show();
                 }
-                weatherText.setText(weatherData.getCurrentObservation().getWeather());
-
-                setBackgroundColor(weatherData.getCurrentObservation().getTempF());
-
-                ArrayList<ArrayList<HourlyForecast>> finalList = parseHourlyForecastList(
-                        weatherData.getHourlyForecast());
-
-                ListAdapter listAdapter = new ListAdapter(getApplicationContext(), finalList, unit);
-                containerList.setAdapter(listAdapter);
-                containerList.setMinimumHeight(100);
 
             }
 

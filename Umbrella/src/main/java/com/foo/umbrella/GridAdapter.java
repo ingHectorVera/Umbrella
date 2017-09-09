@@ -58,7 +58,7 @@ public class GridAdapter extends BaseAdapter {
         } else {
             hWeatherText.setText(h.getTemp().getMetric());
         }
-        Picasso.with(context).load(h.getIconUrl()).into(imageView);
+        Picasso.with(context).load(h.getIconUrl()).resize(75,75).into(imageView);
         return view;
     }
 
