@@ -19,4 +19,5 @@ public class Library {
 
     public static final String CELSIUS = "Celsius";
     public static final String FAHRENHEIT = "Fahrenheit";
+    public static final double TEMPERATURE_LIMIT = 60;
 }

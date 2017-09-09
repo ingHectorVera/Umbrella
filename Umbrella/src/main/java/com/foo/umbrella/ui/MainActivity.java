@@ -7,6 +7,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.foo.umbrella.R;
@@ -32,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private String zipCode, unit;
     private TextView tempText, weatherText;
+    private ListView containerView;
+    private String [] arrayText;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
       toolbar = (Toolbar) findViewById(R.id.main_toolbar);
       tempText = (TextView) findViewById(R.id.tempText);
       weatherText = (TextView) findViewById(R.id.weatherText);
+      containerView = (ListView) findViewById(R.id.containerView);
+
+      arrayText = new String[]{"String 1","String 2","String 3","String 4","String 5",
+              "String 6","String 7","String 8"};
 
       UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
 
@@ -108,10 +116,11 @@ public class MainActivity extends AppCompatActivity {
                     tempText.setText(weatherData.getCurrentObservation().getTempF()+"*");
                 }
                 weatherText.setText(weatherData.getCurrentObservation().getWeather());
+                setBackgroundColor(weatherData.getCurrentObservation().getTempF());
 
-                /*ArrayList<HourlyForecast> hourlyForecastList = (ArrayList<HourlyForecast>) weatherData.getHourlyForecast();
-                Observable.from(hourlyForecastList)
-                        .groupBy(hourlyForecastList.g)*/
+                ArrayAdapter<String> firstAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1,
+                        arrayText);
+                containerView.setAdapter(firstAdapter);
                Log.d(DEBUG, "onResponse");
             }
 
@@ -122,5 +131,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void setBackgroundColor(double tempF){
+        if(tempF >= Library.TEMPERATURE_LIMIT){
+            toolbar.setBackgroundColor(getResources().getColor(R.color.weather_warm));
+            tempText.setBackgroundColor(getResources().getColor(R.color.weather_warm));
+            weatherText.setBackgroundColor(getResources().getColor(R.color.weather_warm));
+        }else{
+            toolbar.setBackgroundColor(getResources().getColor(R.color.weather_cool));
+            tempText.setBackgroundColor(getResources().getColor(R.color.weather_cool));
+            weatherText.setBackgroundColor(getResources().getColor(R.color.weather_cool));
+        }
     }
 }
