@@ -8,9 +8,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.foo.umbrella.GridAdapter;
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.api.WeatherService;
 import com.foo.umbrella.data.model.HourlyForecast;
@@ -20,6 +22,7 @@ import com.foo.umbrella.database.UmbrellaConfigDH;
 import com.foo.umbrella.database.library.Library;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,9 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String DEBUG = "Debug_Main";
     private Toolbar toolbar;
     private String zipCode, unit;
-    private TextView tempText, weatherText;
-    private ListView containerView;
-    private String [] arrayText;
+    private TextView tempText, weatherText, todayText;
+    private GridView todayGrid;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +47,9 @@ public class MainActivity extends AppCompatActivity {
       toolbar = (Toolbar) findViewById(R.id.main_toolbar);
       tempText = (TextView) findViewById(R.id.tempText);
       weatherText = (TextView) findViewById(R.id.weatherText);
-      containerView = (ListView) findViewById(R.id.containerView);
 
-      arrayText = new String[]{"String 1","String 2","String 3","String 4","String 5",
-              "String 6","String 7","String 8"};
+      todayGrid = (GridView) findViewById(R.id.todayGrid);
+      todayText = (TextView) findViewById(R.id.todayText);
 
       UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
 
@@ -116,11 +117,20 @@ public class MainActivity extends AppCompatActivity {
                     tempText.setText(weatherData.getCurrentObservation().getTempF()+"*");
                 }
                 weatherText.setText(weatherData.getCurrentObservation().getWeather());
+
                 setBackgroundColor(weatherData.getCurrentObservation().getTempF());
 
-                ArrayAdapter<String> firstAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1,
-                        arrayText);
-                containerView.setAdapter(firstAdapter);
+                ArrayList<ArrayList<HourlyForecast>> finalList = parseHourlyForecastList(
+                        weatherData.getHourlyForecast());
+
+                ArrayList<HourlyForecast> todayInfo = finalList.get(0);
+
+                todayText.setText("Today " + todayInfo.get(0).getFCTTIME().getMonAbbrev()
+                + " " + todayInfo.get(0).getFCTTIME().getMdayPadded()
+                + " " + todayInfo.get(0).getFCTTIME().getYear());
+                GridAdapter gridAdapter = new GridAdapter(getApplicationContext(), todayInfo, unit);
+                todayGrid.setAdapter(gridAdapter);
+
                Log.d(DEBUG, "onResponse");
             }
 
@@ -143,5 +153,38 @@ public class MainActivity extends AppCompatActivity {
             tempText.setBackgroundColor(getResources().getColor(R.color.weather_cool));
             weatherText.setBackgroundColor(getResources().getColor(R.color.weather_cool));
         }
+    }
+
+    /**
+     *  HOURLY FORECAST
+     *  Condition - clear.
+     *  temp - english: F, metric: C
+     *  FCTTIME
+     *  yday - number of day.
+     *  civil - 11:00 AM
+     *  mon_abbrev, mday_padded, year
+     *
+     */
+    private ArrayList<ArrayList<HourlyForecast>> parseHourlyForecastList(List<HourlyForecast> list){
+        int flag = 0;
+        ArrayList<ArrayList<HourlyForecast>> finalList = new ArrayList<>();
+        ArrayList<HourlyForecast> intermedial = new ArrayList<>();
+        for(int i = 0; i < list.size(); i++){
+            HourlyForecast l = list.get(i);
+            int tempFlag = Integer.parseInt(l.getFCTTIME().getYday());
+            if(flag != tempFlag && flag != 0){
+                finalList.add(intermedial);
+                intermedial = null;
+                intermedial = new ArrayList<>();
+                intermedial.add(l);
+            } else if(flag == tempFlag || flag == 0){
+                intermedial.add(l);
+            }
+            if((i+1) == list.size()){
+                finalList.add(intermedial);
+            }
+            flag = tempFlag;
+        }
+        return finalList;
     }
 }
