@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.foo.umbrella.GridAdapter;
+import com.foo.umbrella.ListAdapter;
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.api.WeatherService;
 import com.foo.umbrella.data.model.HourlyForecast;
@@ -33,11 +34,10 @@ import rx.Observable;
 public class MainActivity extends AppCompatActivity {
 
     private static final int MAIN_ACTIVITY_CODE = 1;
-    private static final String DEBUG = "Debug_Main";
     private Toolbar toolbar;
     private String zipCode, unit;
-    private TextView tempText, weatherText, todayText;
-    private GridView todayGrid;
+    private TextView tempText, weatherText;
+    private ListView containerList;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +48,7 @@ public class MainActivity extends AppCompatActivity {
       tempText = (TextView) findViewById(R.id.tempText);
       weatherText = (TextView) findViewById(R.id.weatherText);
 
-      todayGrid = (GridView) findViewById(R.id.todayGrid);
-      todayText = (TextView) findViewById(R.id.todayText);
+      containerList = (ListView) findViewById(R.id.containerList);
 
       UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
 
@@ -112,9 +111,9 @@ public class MainActivity extends AppCompatActivity {
                 WeatherData weatherData = response.body();
                 toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFull());
                 if(unit.equals(Library.CELSIUS)){
-                    tempText.setText(weatherData.getCurrentObservation().getTempC()+"*");
+                    tempText.setText(weatherData.getCurrentObservation().getTempC()+" ºC");
                 }else{
-                    tempText.setText(weatherData.getCurrentObservation().getTempF()+"*");
+                    tempText.setText(weatherData.getCurrentObservation().getTempF()+" ºF");
                 }
                 weatherText.setText(weatherData.getCurrentObservation().getWeather());
 
@@ -123,20 +122,14 @@ public class MainActivity extends AppCompatActivity {
                 ArrayList<ArrayList<HourlyForecast>> finalList = parseHourlyForecastList(
                         weatherData.getHourlyForecast());
 
-                ArrayList<HourlyForecast> todayInfo = finalList.get(0);
+                ListAdapter listAdapter = new ListAdapter(getApplicationContext(), finalList, unit);
+                containerList.setAdapter(listAdapter);
+                containerList.setMinimumHeight(100);
 
-                todayText.setText("Today " + todayInfo.get(0).getFCTTIME().getMonAbbrev()
-                + " " + todayInfo.get(0).getFCTTIME().getMdayPadded()
-                + " " + todayInfo.get(0).getFCTTIME().getYear());
-                GridAdapter gridAdapter = new GridAdapter(getApplicationContext(), todayInfo, unit);
-                todayGrid.setAdapter(gridAdapter);
-
-               Log.d(DEBUG, "onResponse");
             }
 
             @Override
             public void onFailure(Call<WeatherData> call, Throwable t) {
-                Log.d(DEBUG, "onFailure");
                 t.printStackTrace();
             }
         });
@@ -155,16 +148,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     *  HOURLY FORECAST
-     *  Condition - clear.
-     *  temp - english: F, metric: C
-     *  FCTTIME
-     *  yday - number of day.
-     *  civil - 11:00 AM
-     *  mon_abbrev, mday_padded, year
-     *
-     */
     private ArrayList<ArrayList<HourlyForecast>> parseHourlyForecastList(List<HourlyForecast> list){
         int flag = 0;
         ArrayList<ArrayList<HourlyForecast>> finalList = new ArrayList<>();

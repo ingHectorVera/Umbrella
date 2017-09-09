@@ -59,7 +59,6 @@ public class GridAdapter extends BaseAdapter {
             hWeatherText.setText(h.getTemp().getMetric());
         }
         Picasso.with(context).load(h.getIconUrl()).into(imageView);
-        //imageView.setImageDrawable(view.getResources().getDrawable(R.drawable.weather_sunny));
         return view;
     }
 

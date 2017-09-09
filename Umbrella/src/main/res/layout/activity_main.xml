@@ -37,20 +37,9 @@
         android:textColor="@color/content_background"
         android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/todayText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <GridView
-        android:id="@+id/todayGrid"
+    <ListView
+        android:id="@+id/containerList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:numColumns="auto_fit"
-        android:columnWidth="50dp"
-        android:verticalSpacing="20dp"
-        android:horizontalSpacing="20dp"
-        android:stretchMode="columnWidth"
-        android:gravity="center"/>
-
+        android:minHeight="?android:attr/listPreferredItemHeight" />
 </LinearLayout>
