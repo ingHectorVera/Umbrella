@@ -1,25 +1,75 @@
+
 package com.foo.umbrella.data.model;
 
-import com.google.auto.value.AutoValue;
-import com.squareup.moshi.Json;
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
 import java.util.List;
+import com.squareup.moshi.Json;
 
-/**
- * Represents weather information returned from the Weather Underground API
- *
- * Does not include all available only data- only potentially useful fields are included
- */
-@AutoValue
-public abstract class WeatherData {
-  public static JsonAdapter<WeatherData> jsonAdapter(Moshi moshi) {
-    return new AutoValue_WeatherData.MoshiJsonAdapter(moshi);
-  }
+public class WeatherData {
 
-  @Json(name = "current_observation")
-  public abstract CurrentObservation getCurrentObservation();
+    @Json(name = "response")
+    private Response response;
+    @Json(name = "current_observation")
+    private CurrentObservation currentObservation;
+    @Json(name = "hourly_forecast")
+    private List<HourlyForecast> hourlyForecast = null;
 
-  @Json(name = "hourly_forecast")
-  public abstract List<ForecastCondition> getForecast();
+    /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public WeatherData() {
+    }
+
+    /**
+     * 
+     * @param currentObservation
+     * @param response
+     * @param hourlyForecast
+     */
+    public WeatherData(Response response, CurrentObservation currentObservation, List<HourlyForecast> hourlyForecast) {
+        super();
+        this.response = response;
+        this.currentObservation = currentObservation;
+        this.hourlyForecast = hourlyForecast;
+    }
+
+    public Response getResponse() {
+        return response;
+    }
+
+    public void setResponse(Response response) {
+        this.response = response;
+    }
+
+    public WeatherData withResponse(Response response) {
+        this.response = response;
+        return this;
+    }
+
+    public CurrentObservation getCurrentObservation() {
+        return currentObservation;
+    }
+
+    public void setCurrentObservation(CurrentObservation currentObservation) {
+        this.currentObservation = currentObservation;
+    }
+
+    public WeatherData withCurrentObservation(CurrentObservation currentObservation) {
+        this.currentObservation = currentObservation;
+        return this;
+    }
+
+    public List<HourlyForecast> getHourlyForecast() {
+        return hourlyForecast;
+    }
+
+    public void setHourlyForecast(List<HourlyForecast> hourlyForecast) {
+        this.hourlyForecast = hourlyForecast;
+    }
+
+    public WeatherData withHourlyForecast(List<HourlyForecast> hourlyForecast) {
+        this.hourlyForecast = hourlyForecast;
+        return this;
+    }
+
 }

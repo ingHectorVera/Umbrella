@@ -7,25 +7,39 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.foo.umbrella.GridAdapter;
+import com.foo.umbrella.ListAdapter;
 import com.foo.umbrella.R;
-import com.foo.umbrella.data.ApiServicesProvider;
+import com.foo.umbrella.data.api.WeatherService;
+import com.foo.umbrella.data.model.CurrentObservation;
+import com.foo.umbrella.data.model.HourlyForecast;
 import com.foo.umbrella.data.model.WeatherData;
 import com.foo.umbrella.database.ConfigData;
 import com.foo.umbrella.database.UmbrellaConfigDH;
-import com.foo.umbrella.service.CommunicationService;
+import com.foo.umbrella.database.library.Library;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.adapter.rxjava.Result;
+import rx.Observable;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int MAIN_ACTIVITY_CODE = 1;
-    private static final String DEBUG = "Debug_Main";
     private Toolbar toolbar;
     private String zipCode, unit;
+    private TextView tempText, weatherText;
+    private ListView containerList;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
 
       setContentView(R.layout.activity_main);
       toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+      tempText = (TextView) findViewById(R.id.tempText);
+      weatherText = (TextView) findViewById(R.id.weatherText);
+
+      containerList = (ListView) findViewById(R.id.containerList);
 
       UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
 
@@ -41,8 +59,7 @@ public class MainActivity extends AppCompatActivity {
           zipCode = configData.getZipCode();
           unit = configData.getUnit();
 
-          toolbar.setTitle(zipCode +" "+unit);
-
+          forecastForZipCallable();
           setSupportActionBar(toolbar);
       } else {
           Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
@@ -72,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
             zipCode = data.getStringExtra("zipCode");
             unit = data.getStringExtra("unit");
 
-            toolbar.setTitle(zipCode +" "+unit);
             setSupportActionBar(toolbar);
 
             UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
@@ -91,27 +107,73 @@ public class MainActivity extends AppCompatActivity {
 
     private void forecastForZipCallable(){
 
-        //Intent intent = new Intent(MainActivity.this, CommunicationService.class);
-        //intent.putExtra("zipCode",zipCode);
-        //startService(intent);
-
-        /*ApiServicesProvider api = new ApiServicesProvider(getApplication());
-
-        Call<WeatherData> call = api.getWeatherService().forecastForZipCallable(zipCode);
-        call.enqueue(new Callback<WeatherData>() {
+        WeatherService.Factory.getInstance().forecastForZipCallable(zipCode).enqueue(new Callback<WeatherData>() {
             @Override
             public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
-                Log.d(DEBUG, "onResponse");
                 WeatherData weatherData = response.body();
-                toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFullName());
+                CurrentObservation currentObservation = weatherData.getCurrentObservation();
+                if(currentObservation != null) {
+                    toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFull());
+                    if (unit.equals(Library.CELSIUS)) {
+                        tempText.setText(weatherData.getCurrentObservation().getTempC() + " ºC");
+                    } else {
+                        tempText.setText(weatherData.getCurrentObservation().getTempF() + " ºF");
+                    }
+                    weatherText.setText(weatherData.getCurrentObservation().getWeather());
+
+                    setBackgroundColor(weatherData.getCurrentObservation().getTempF());
+
+                    ArrayList<ArrayList<HourlyForecast>> finalList = parseHourlyForecastList(
+                            weatherData.getHourlyForecast());
+
+                    ListAdapter listAdapter = new ListAdapter(getApplicationContext(), finalList, unit);
+                    containerList.setAdapter(listAdapter);
+                }else{
+                    Toast.makeText(getApplicationContext(), Library.ZIP_CODE_ERROR, Toast.LENGTH_LONG).show();
+                }
+
             }
 
             @Override
             public void onFailure(Call<WeatherData> call, Throwable t) {
-                Log.d(DEBUG, "onFailure");
-                Log.d(DEBUG, t.getMessage());
                 t.printStackTrace();
             }
-        });*/
+        });
+
+    }
+
+    private void setBackgroundColor(double tempF){
+        if(tempF >= Library.TEMPERATURE_LIMIT){
+            toolbar.setBackgroundColor(getResources().getColor(R.color.weather_warm));
+            tempText.setBackgroundColor(getResources().getColor(R.color.weather_warm));
+            weatherText.setBackgroundColor(getResources().getColor(R.color.weather_warm));
+        }else{
+            toolbar.setBackgroundColor(getResources().getColor(R.color.weather_cool));
+            tempText.setBackgroundColor(getResources().getColor(R.color.weather_cool));
+            weatherText.setBackgroundColor(getResources().getColor(R.color.weather_cool));
+        }
+    }
+
+    private ArrayList<ArrayList<HourlyForecast>> parseHourlyForecastList(List<HourlyForecast> list){
+        int flag = 0;
+        ArrayList<ArrayList<HourlyForecast>> finalList = new ArrayList<>();
+        ArrayList<HourlyForecast> intermedial = new ArrayList<>();
+        for(int i = 0; i < list.size(); i++){
+            HourlyForecast l = list.get(i);
+            int tempFlag = Integer.parseInt(l.getFCTTIME().getYday());
+            if(flag != tempFlag && flag != 0){
+                finalList.add(intermedial);
+                intermedial = null;
+                intermedial = new ArrayList<>();
+                intermedial.add(l);
+            } else if(flag == tempFlag || flag == 0){
+                intermedial.add(l);
+            }
+            if((i+1) == list.size()){
+                finalList.add(intermedial);
+            }
+            flag = tempFlag;
+        }
+        return finalList;
     }
 }
