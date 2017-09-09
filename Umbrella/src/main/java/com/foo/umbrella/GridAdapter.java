@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.model.HourlyForecast;
 import com.foo.umbrella.database.library.Library;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -57,7 +58,8 @@ public class GridAdapter extends BaseAdapter {
         } else {
             hWeatherText.setText(h.getTemp().getMetric());
         }
-        imageView.setImageDrawable(view.getResources().getDrawable(R.drawable.weather_sunny));
+        Picasso.with(context).load(h.getIconUrl()).into(imageView);
+        //imageView.setImageDrawable(view.getResources().getDrawable(R.drawable.weather_sunny));
         return view;
     }
 
