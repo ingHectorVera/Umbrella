@@ -1,4 +1,4 @@
-package com.foo.umbrella;
+package com.foo.umbrella.ui.adapters;
 
 import android.content.Context;
 import android.view.View;
@@ -7,7 +7,9 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import com.foo.umbrella.R;
 import com.foo.umbrella.data.model.HourlyForecast;
+import com.foo.umbrella.ui.adapters.GridAdapter;
 
 import java.util.ArrayList;
 
