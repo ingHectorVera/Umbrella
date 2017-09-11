@@ -136,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     private void setBackgroundColor(double tempF){
         if(tempF >= Library.TEMPERATURE_LIMIT){
             toolbar.setBackgroundColor(getResources().getColor(R.color.weather_warm));
