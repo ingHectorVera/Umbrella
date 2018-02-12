@@ -4,6 +4,7 @@ import com.foo.umbrella.data.api.WeatherService;
 import com.foo.umbrella.data.model.CurrentObservation;
 import com.foo.umbrella.data.model.HourlyForecast;
 import com.foo.umbrella.data.model.WeatherData;
+import com.foo.umbrella.events.ListEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -20,13 +21,7 @@ import retrofit2.Response;
 
 public class ForecastModel {
 
-    private String zipCode;
-
-    public ForecastModel(String zipCode) {
-        this.zipCode = zipCode;
-    }
-
-    public void forecastForZipCallable(){
+    public static void forecastForZipCallable(String zipCode){
         WeatherService.Factory.getInstance().forecastForZipCallable(zipCode).enqueue(new Callback<WeatherData>() {
             @Override
             public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
@@ -37,7 +32,7 @@ public class ForecastModel {
                      finalList = parseHourlyForecastList(
                             weatherData.getHourlyForecast());
                 }
-                EventBus.getDefault().post(finalList);
+                EventBus.getDefault().post(new ListEvent(finalList));
             }
 
             @Override
@@ -48,7 +43,7 @@ public class ForecastModel {
 
     }
 
-    private ArrayList<ArrayList<HourlyForecast>> parseHourlyForecastList(List<HourlyForecast> list){
+    private static ArrayList<ArrayList<HourlyForecast>> parseHourlyForecastList(List<HourlyForecast> list){
         int flag = 0;
         ArrayList<ArrayList<HourlyForecast>> finalList = new ArrayList<>();
         ArrayList<HourlyForecast> intermedial = new ArrayList<>();
