@@ -1,11 +1,16 @@
 package com.foo.umbrella.ui;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -102,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe
     public void onEvent(ListEvent event) {
         String currentLocation = event.getWeatherData().getCurrentObservation().getDisplayLocation().getFull();
-        Toast.makeText(this, currentLocation, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, currentLocation, Toast.LENGTH_SHORT).show();
         toolbar.setTitle(currentLocation);
         if (unit.equals(Library.CELSIUS)) {
             tempText.setText(event.getWeatherData().getCurrentObservation().getTempC() + " ºC");
@@ -110,8 +115,27 @@ public class MainActivity extends AppCompatActivity {
             tempText.setText(event.getWeatherData().getCurrentObservation().getTempF() + " ºF");
         }
         setBackgroundColor(event.getWeatherData().getCurrentObservation().getTempF());
+        sendNotification(event.getWeatherData());
         ListAdapter listAdapter = new ListAdapter(getApplicationContext(), event.getFinalList(), unit);
         containerList.setAdapter(listAdapter);
+    }
+
+    private void sendNotification(WeatherData weatherData) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, Library.NOTIFICATION_REQUEST_CODE, intent, 0);
+
+        builder.setContentIntent(pendingIntent);
+        builder.setSmallIcon(R.drawable.ic_weather_black);
+        builder.setContentTitle(weatherData.getCurrentObservation().getDisplayLocation().getFull());
+        if (unit.equals(Library.CELSIUS)) {
+            builder.setContentText(weatherData.getCurrentObservation().getTempC() + " ºC");
+        } else {
+            builder.setContentText(weatherData.getCurrentObservation().getTempF() + " ºF");
+        }
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(Library.NOTIFICATION_REQUEST_CODE, builder.build());
     }
 
     private void setBackgroundColor(double tempF){
