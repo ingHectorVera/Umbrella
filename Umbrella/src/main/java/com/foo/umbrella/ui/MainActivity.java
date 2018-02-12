@@ -90,46 +90,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe
     public void onEvent(ListEvent event) {
-
+        String currentLocation = event.getWeatherData().getCurrentObservation().getDisplayLocation().getFull();
+        Toast.makeText(this, currentLocation, Toast.LENGTH_SHORT).show();
+        toolbar.setTitle(currentLocation);
+        if (unit.equals(Library.CELSIUS)) {
+            tempText.setText(event.getWeatherData().getCurrentObservation().getTempC() + " ºC");
+        } else {
+            tempText.setText(event.getWeatherData().getCurrentObservation().getTempF() + " ºF");
+        }
+        setBackgroundColor(event.getWeatherData().getCurrentObservation().getTempF());
+        ListAdapter listAdapter = new ListAdapter(getApplicationContext(), event.getFinalList(), unit);
+        containerList.setAdapter(listAdapter);
     }
-    /*
-    private void forecastForZipCallable(){
-
-        WeatherService.Factory.getInstance().forecastForZipCallable(zipCode).enqueue(new Callback<WeatherData>() {
-            @Override
-            public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
-                WeatherData weatherData = response.body();
-                CurrentObservation currentObservation = weatherData.getCurrentObservation();
-                if(currentObservation != null) {
-                    toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFull());
-                    if (unit.equals(Library.CELSIUS)) {
-                        tempText.setText(weatherData.getCurrentObservation().getTempC() + " ºC");
-                    } else {
-                        tempText.setText(weatherData.getCurrentObservation().getTempF() + " ºF");
-                    }
-                    weatherText.setText(weatherData.getCurrentObservation().getWeather());
-
-                    setBackgroundColor(weatherData.getCurrentObservation().getTempF());
-
-                    ArrayList<ArrayList<HourlyForecast>> finalList = parseHourlyForecastList(
-                            weatherData.getHourlyForecast());
-
-                    ListAdapter listAdapter = new ListAdapter(getApplicationContext(), finalList, unit);
-                    containerList.setAdapter(listAdapter);
-                }else{
-                    Toast.makeText(getApplicationContext(), Library.ZIP_CODE_ERROR, Toast.LENGTH_LONG).show();
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<WeatherData> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
-
-    }
-    */
 
     private void setBackgroundColor(double tempF){
         if(tempF >= Library.TEMPERATURE_LIMIT){

@@ -26,13 +26,16 @@ public class ForecastModel {
             @Override
             public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
                 WeatherData weatherData = response.body();
+                String currentLocation = null;
+                String temperature = null;
                 ArrayList<ArrayList<HourlyForecast>> finalList = null;
                 CurrentObservation currentObservation = weatherData.getCurrentObservation();
                 if(currentObservation != null) {
-                     finalList = parseHourlyForecastList(
-                            weatherData.getHourlyForecast());
+                    currentLocation = weatherData.getCurrentObservation().getDisplayLocation().getFull();
+                    temperature = weatherData.getCurrentObservation().getTempC() + "";
+                    finalList = parseHourlyForecastList(weatherData.getHourlyForecast());
                 }
-                EventBus.getDefault().post(new ListEvent(finalList));
+                EventBus.getDefault().post(new ListEvent(weatherData, finalList));
             }
 
             @Override

@@ -1,6 +1,7 @@
 package com.foo.umbrella.events;
 
 import com.foo.umbrella.data.model.HourlyForecast;
+import com.foo.umbrella.data.model.WeatherData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +13,10 @@ import java.util.List;
 public class ListEvent {
 
     private ArrayList<ArrayList<HourlyForecast>> finalList;
+    private WeatherData weatherData;
 
-    public ListEvent(ArrayList<ArrayList<HourlyForecast>> finalList) {
+    public ListEvent(WeatherData weatherData, ArrayList<ArrayList<HourlyForecast>> finalList) {
+        this.weatherData = weatherData;
         this.finalList = finalList;
     }
 
@@ -23,5 +26,13 @@ public class ListEvent {
 
     public void setFinalList(ArrayList<ArrayList<HourlyForecast>> finalList) {
         this.finalList = finalList;
+    }
+
+    public WeatherData getWeatherData() {
+        return weatherData;
+    }
+
+    public void setWeatherData(WeatherData weatherData) {
+        this.weatherData = weatherData;
     }
 }
