@@ -1,15 +1,22 @@
 package com.foo.umbrella.ui;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.foo.umbrella.events.ListEvent;
+import com.foo.umbrella.model.ForecastModel;
 import com.foo.umbrella.ui.adapters.ListAdapter;
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.api.WeatherService;
@@ -20,8 +27,13 @@ import com.foo.umbrella.database.ConfigData;
 import com.foo.umbrella.database.UmbrellaConfigDH;
 import com.foo.umbrella.database.library.Library;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -34,32 +46,35 @@ public class MainActivity extends AppCompatActivity {
     private String zipCode, unit;
     private TextView tempText, weatherText;
     private ListView containerList;
+    private Timer timer;
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        setUI();
+        getSettings();
+    }
 
-      setContentView(R.layout.activity_main);
-      toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-      tempText = (TextView) findViewById(R.id.tempText);
-      weatherText = (TextView) findViewById(R.id.weatherText);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ForecastModel.forecastForZipCallable(zipCode);
+            }
+        }, Library.TIMER_MINUTES * 60 * 1000);
+    }
 
-      containerList = (ListView) findViewById(R.id.containerList);
-
-      UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
-
-      ConfigData configData = umbrellaConfigDH.selectConfigData();
-      if(configData.getZipCode() != null && configData.getUnit() != null) {
-          zipCode = configData.getZipCode();
-          unit = configData.getUnit();
-
-          forecastForZipCallable();
-          setSupportActionBar(toolbar);
-      } else {
-          Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-          startActivityForResult(intent, MAIN_ACTIVITY_CODE);
-      }
-  }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+        timer = null;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -84,56 +99,43 @@ public class MainActivity extends AppCompatActivity {
             unit = data.getStringExtra("unit");
 
             setSupportActionBar(toolbar);
-
-            UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
-
-            ConfigData configData = umbrellaConfigDH.selectConfigData();
-            if(configData.getZipCode() != null && configData.getUnit() != null){
-                umbrellaConfigDH.updateZipCode(zipCode);
-                umbrellaConfigDH.updateUnit(unit);
-            }else {
-                umbrellaConfigDH.addZipCode(zipCode);
-                umbrellaConfigDH.addUnit(unit);
-            }
-            forecastForZipCallable();
+            storeUnits();
+            ForecastModel.forecastForZipCallable(zipCode);
         }
     }
 
-    private void forecastForZipCallable(){
+    @Subscribe
+    public void onEvent(ListEvent event) {
+        String currentLocation = event.getWeatherData().getCurrentObservation().getDisplayLocation().getFull();
+        //Toast.makeText(this, currentLocation, Toast.LENGTH_SHORT).show();
+        toolbar.setTitle(currentLocation);
+        if (unit.equals(Library.CELSIUS)) {
+            tempText.setText(event.getWeatherData().getCurrentObservation().getTempC() + " ºC");
+        } else {
+            tempText.setText(event.getWeatherData().getCurrentObservation().getTempF() + " ºF");
+        }
+        setBackgroundColor(event.getWeatherData().getCurrentObservation().getTempF());
+        sendNotification(event.getWeatherData());
+        ListAdapter listAdapter = new ListAdapter(getApplicationContext(), event.getFinalList(), unit);
+        containerList.setAdapter(listAdapter);
+    }
 
-        WeatherService.Factory.getInstance().forecastForZipCallable(zipCode).enqueue(new Callback<WeatherData>() {
-            @Override
-            public void onResponse(Call<WeatherData> call, Response<WeatherData> response) {
-                WeatherData weatherData = response.body();
-                CurrentObservation currentObservation = weatherData.getCurrentObservation();
-                if(currentObservation != null) {
-                    toolbar.setTitle(weatherData.getCurrentObservation().getDisplayLocation().getFull());
-                    if (unit.equals(Library.CELSIUS)) {
-                        tempText.setText(weatherData.getCurrentObservation().getTempC() + " ºC");
-                    } else {
-                        tempText.setText(weatherData.getCurrentObservation().getTempF() + " ºF");
-                    }
-                    weatherText.setText(weatherData.getCurrentObservation().getWeather());
+    private void sendNotification(WeatherData weatherData) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, Library.NOTIFICATION_REQUEST_CODE, intent, 0);
 
-                    setBackgroundColor(weatherData.getCurrentObservation().getTempF());
+        builder.setContentIntent(pendingIntent);
+        builder.setSmallIcon(R.drawable.ic_weather_black);
+        builder.setContentTitle(weatherData.getCurrentObservation().getDisplayLocation().getFull());
+        if (unit.equals(Library.CELSIUS)) {
+            builder.setContentText(weatherData.getCurrentObservation().getTempC() + " ºC");
+        } else {
+            builder.setContentText(weatherData.getCurrentObservation().getTempF() + " ºF");
+        }
 
-                    ArrayList<ArrayList<HourlyForecast>> finalList = parseHourlyForecastList(
-                            weatherData.getHourlyForecast());
-
-                    ListAdapter listAdapter = new ListAdapter(getApplicationContext(), finalList, unit);
-                    containerList.setAdapter(listAdapter);
-                }else{
-                    Toast.makeText(getApplicationContext(), Library.ZIP_CODE_ERROR, Toast.LENGTH_LONG).show();
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<WeatherData> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
-
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(Library.NOTIFICATION_REQUEST_CODE, builder.build());
     }
 
     private void setBackgroundColor(double tempF){
@@ -148,26 +150,37 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private ArrayList<ArrayList<HourlyForecast>> parseHourlyForecastList(List<HourlyForecast> list){
-        int flag = 0;
-        ArrayList<ArrayList<HourlyForecast>> finalList = new ArrayList<>();
-        ArrayList<HourlyForecast> intermedial = new ArrayList<>();
-        for(int i = 0; i < list.size(); i++){
-            HourlyForecast l = list.get(i);
-            int tempFlag = Integer.parseInt(l.getFCTTIME().getYday());
-            if(flag != tempFlag && flag != 0){
-                finalList.add(intermedial);
-                intermedial = null;
-                intermedial = new ArrayList<>();
-                intermedial.add(l);
-            } else if(flag == tempFlag || flag == 0){
-                intermedial.add(l);
-            }
-            if((i+1) == list.size()){
-                finalList.add(intermedial);
-            }
-            flag = tempFlag;
-        }
-        return finalList;
+    private void setUI() {
+        toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        tempText = (TextView) findViewById(R.id.tempText);
+        weatherText = (TextView) findViewById(R.id.weatherText);
+        containerList = (ListView) findViewById(R.id.containerList);
     }
+
+    private void getSettings() {
+        UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
+        ConfigData configData = umbrellaConfigDH.selectConfigData();
+        if(configData.getZipCode() != null && configData.getUnit() != null) {
+            zipCode = configData.getZipCode();
+            unit = configData.getUnit();
+            ForecastModel.forecastForZipCallable(zipCode);
+            setSupportActionBar(toolbar);
+        } else {
+            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivityForResult(intent, MAIN_ACTIVITY_CODE);
+        }
+    }
+
+    private void storeUnits() {
+        UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
+        ConfigData configData = umbrellaConfigDH.selectConfigData();
+        if(configData.getZipCode() != null && configData.getUnit() != null){
+            umbrellaConfigDH.updateZipCode(zipCode);
+            umbrellaConfigDH.updateUnit(unit);
+        }else {
+            umbrellaConfigDH.addZipCode(zipCode);
+            umbrellaConfigDH.addUnit(unit);
+        }
+    }
+
 }

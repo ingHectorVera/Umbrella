@@ -21,4 +21,6 @@ public class Library {
     public static final String FAHRENHEIT = "Fahrenheit";
     public static final String ZIP_CODE_ERROR = "Wrong zip code, please change it in settings";
     public static final double TEMPERATURE_LIMIT = 60;
+    public static final int TIMER_MINUTES = 1;
+    public static final int NOTIFICATION_REQUEST_CODE = 0;
 }
