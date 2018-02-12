@@ -20,6 +20,9 @@ import com.foo.umbrella.database.ConfigData;
 import com.foo.umbrella.database.UmbrellaConfigDH;
 import com.foo.umbrella.database.library.Library;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,31 +38,42 @@ public class MainActivity extends AppCompatActivity {
     private TextView tempText, weatherText;
     private ListView containerList;
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        tempText = (TextView) findViewById(R.id.tempText);
+        weatherText = (TextView) findViewById(R.id.weatherText);
 
-      setContentView(R.layout.activity_main);
-      toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-      tempText = (TextView) findViewById(R.id.tempText);
-      weatherText = (TextView) findViewById(R.id.weatherText);
+        containerList = (ListView) findViewById(R.id.containerList);
 
-      containerList = (ListView) findViewById(R.id.containerList);
+        UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
 
-      UmbrellaConfigDH umbrellaConfigDH = new UmbrellaConfigDH(getApplicationContext());
+        ConfigData configData = umbrellaConfigDH.selectConfigData();
+        if(configData.getZipCode() != null && configData.getUnit() != null) {
+            zipCode = configData.getZipCode();
+            unit = configData.getUnit();
 
-      ConfigData configData = umbrellaConfigDH.selectConfigData();
-      if(configData.getZipCode() != null && configData.getUnit() != null) {
-          zipCode = configData.getZipCode();
-          unit = configData.getUnit();
+          //forecastForZipCallable();
+            setSupportActionBar(toolbar);
+        } else {
+            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivityForResult(intent, MAIN_ACTIVITY_CODE);
+        }
+    }
 
-          forecastForZipCallable();
-          setSupportActionBar(toolbar);
-      } else {
-          Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-          startActivityForResult(intent, MAIN_ACTIVITY_CODE);
-      }
-  }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -95,10 +109,15 @@ public class MainActivity extends AppCompatActivity {
                 umbrellaConfigDH.addZipCode(zipCode);
                 umbrellaConfigDH.addUnit(unit);
             }
-            forecastForZipCallable();
+            //forecastForZipCallable();
         }
     }
 
+    @Subscribe
+    public void onEvent() {
+
+    }
+    /*
     private void forecastForZipCallable(){
 
         WeatherService.Factory.getInstance().forecastForZipCallable(zipCode).enqueue(new Callback<WeatherData>() {
@@ -135,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+    */
 
     private void setBackgroundColor(double tempF){
         if(tempF >= Library.TEMPERATURE_LIMIT){
@@ -148,26 +168,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private ArrayList<ArrayList<HourlyForecast>> parseHourlyForecastList(List<HourlyForecast> list){
-        int flag = 0;
-        ArrayList<ArrayList<HourlyForecast>> finalList = new ArrayList<>();
-        ArrayList<HourlyForecast> intermedial = new ArrayList<>();
-        for(int i = 0; i < list.size(); i++){
-            HourlyForecast l = list.get(i);
-            int tempFlag = Integer.parseInt(l.getFCTTIME().getYday());
-            if(flag != tempFlag && flag != 0){
-                finalList.add(intermedial);
-                intermedial = null;
-                intermedial = new ArrayList<>();
-                intermedial.add(l);
-            } else if(flag == tempFlag || flag == 0){
-                intermedial.add(l);
-            }
-            if((i+1) == list.size()){
-                finalList.add(intermedial);
-            }
-            flag = tempFlag;
-        }
-        return finalList;
-    }
 }

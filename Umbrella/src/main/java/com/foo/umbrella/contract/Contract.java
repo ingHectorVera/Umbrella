@@ -1,8 +1,16 @@
 package com.foo.umbrella.contract;
 
-/**
- * Created by Hector Vera on 2/11/2018.
- */
+import com.foo.umbrella.data.model.HourlyForecast;
+
+import java.util.ArrayList;
+
 
 public interface Contract {
+    interface View {
+         void fillList(ArrayList<ArrayList<HourlyForecast>> finalList);
+    }
+
+    interface Presenter {
+        void requestHourlyForecast(String zipCode);
+    }
 }
