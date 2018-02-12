@@ -4,17 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.foo.umbrella.GridAdapter;
-import com.foo.umbrella.ListAdapter;
+import com.foo.umbrella.ui.adapters.ListAdapter;
 import com.foo.umbrella.R;
 import com.foo.umbrella.data.api.WeatherService;
 import com.foo.umbrella.data.model.CurrentObservation;
@@ -30,8 +26,6 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.adapter.rxjava.Result;
-import rx.Observable;
 
 public class MainActivity extends AppCompatActivity {
 

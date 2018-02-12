@@ -1,4 +1,4 @@
-package com.foo.umbrella;
+package com.foo.umbrella.ui.adapters;
 
 import android.content.Context;
 import android.view.View;
