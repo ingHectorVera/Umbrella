@@ -59,9 +59,9 @@ public class MainActivity extends AppCompatActivity {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                getSettings();
+                ForecastModel.forecastForZipCallable(zipCode);
             }
-        }, 1*60*1000);
+        }, Library.TIMER_MINUTES * 60 * 1000);
     }
 
     @Override
@@ -139,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
         if(configData.getZipCode() != null && configData.getUnit() != null) {
             zipCode = configData.getZipCode();
             unit = configData.getUnit();
-
             ForecastModel.forecastForZipCallable(zipCode);
             setSupportActionBar(toolbar);
         } else {
